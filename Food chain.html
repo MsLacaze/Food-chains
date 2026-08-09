@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food Chains & Webs - Interactive Activities</title>
+  <style>
+    :root {
+      --primary: #2e7d32;
+      --primary-dark: #1b5e20;
+      --bg: #f4fbf7;
+      --card-bg: #ffffff;
+      --text: #2c3e50;
+      --accent: #e8f5e9;
+      --correct: #4caf50;
+      --wrong: #f44336;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--primary);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .activity-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      color: var(--primary-dark);
+      margin-top: 0;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 8px;
+    }
+
+    /* MATCHING GAME STYLES */
+    .matching-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .match-btn {
+      padding: 12px;
+      background: var(--accent);
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+
+    .match-btn.selected {
+      background: var(--primary);
+      color: white;
+    }
+
+    .match-btn.matched {
+      background: #c8e6c9;
+      border-color: #4caf50;
+      color: #2e7d32;
+      cursor: default;
+      opacity: 0.6;
+    }
+
+    /* MEMORY GAME STYLES */
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .memory-card {
+      height: 80px;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      text-align: center;
+      padding: 5px;
+    }
+
+    .memory-card.flipped {
+      background: white;
+      color: var(--text);
+      border: 2px solid var(--primary);
+    }
+
+    .memory-card.matched-mem {
+      background: #c8e6c9;
+      color: #2e7d32;
+      cursor: default;
+      border: 2px solid #4caf50;
+    }
+
+    /* ARROW RACE STYLES */
+    .drag-container {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 15px 0;
+    }
+
+    .draggable {
+      padding: 10px 15px;
+      background: var(--accent);
+      border: 1px solid var(--primary);
+      border-radius: 6px;
+      cursor: grab;
+      font-weight: bold;
+    }
+
+    .drop-zone {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .slot {
+      width: 130px;
+      height: 45px;
+      border: 2px dashed var(--primary);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      background: #fff;
+    }
+
+    .arrow {
+      font-size: 1.5rem;
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>🌱 Food Chains & Trophic Levels: Activities</h1>
+
+    <!-- ACTIVITY 1: MATCHING GAME -->
+    <div class="activity-card">
+      <h2>Activity 1: Vocabulary Match</h2>
+      <p>Click a <strong>Term</strong> on the left, then click its matching <strong>Definition</strong> on the right.</p>
+      <div class="matching-grid">
+        <div id="match-terms"></div>
+        <div id="match-defs"></div>
+      </div>
+      <div id="match-feedback" class="feedback"></div>
+    </div>
+
+    <!-- ACTIVITY 2: MEMORY GAME -->
+    <div class="activity-card">
+      <h2>Activity 2: Memory Match</h2>
+      <p>Flip cards to match the <strong>Organism</strong> with its correct <strong>Trophic Level</strong>.</p>
+      <div class="memory-grid" id="memory-board"></div>
+      <div id="memory-feedback" class="feedback"></div>
+    </div>
+
+    <!-- ACTIVITY 3: ARROW RACE -->
+    <div class="activity-card">
+      <h2>Activity 3: Energy Flow Chain Builder</h2>
+      <p>Click the organisms in order to build a functional food chain following energy flow (Producer → Apex Predator).</p>
+      <div class="drag-container" id="organism-pool">
+        <button class="draggable" onclick="addToChain('Snake')">Snake</button>
+        <button class="draggable" onclick="addToChain('Grasshopper')">Grasshopper</button>
+        <button class="draggable" onclick="addToChain('Grass')">Grass</button>
+        <button class="draggable" onclick="addToChain('Hawk')">Hawk</button>
+      </div>
+      <div class="drop-zone">
+        <div class="slot" id="slot-0">?</div>
+        <span class="arrow">➔</span>
+        <div class="slot" id="slot-1">?</div>
+        <span class="arrow">➔</span>
+        <div class="slot" id="slot-2">?</div>
+        <span class="arrow">➔</span>
+        <div class="slot" id="slot-3">?</div>
+      </div>
+      <button class="btn" onclick="checkChain()">Check Chain</button>
+      <button class="btn" style="background: #757575;" onclick="resetChain()">Reset</button>
+      <div id="chain-feedback" class="feedback"></div>
+    </div>
+  </div>
+
+  <script>
+    // --- ACTIVITY 1: MATCHING GAME ---
+    const matchData = [
+      { term: "Producer", def: "Makes food using photosynthesis (e.g., Grass)" },
+      { term: "Primary Consumer", def: "Herbivore that eats producers (e.g., Grasshopper)" },
+      { term: "Secondary Consumer", def: "Carnivore/Omnivore eating herbivores (e.g., Frog)" },
+      { term: "Decomposer", def: "Breaks organic waste into nutrients (e.g., Fungi)" }
+    ];
+
+    let selectedTerm = null;
+
+    function initMatching() {
+      const termsDiv = document.getElementById('match-terms');
+      const defsDiv = document.getElementById('match-defs');
+
+      // Shuffle defs
+      const shuffledDefs = [...matchData].sort(() => Math.random() - 0.5);
+
+      matchData.forEach(item => {
+        const btn = document.createElement('div');
+        btn.className = 'match-btn';
+        btn.innerText = item.term;
+        btn.onclick = () => selectTerm(btn, item.term);
+        termsDiv.appendChild(btn);
+      });
+
+      shuffledDefs.forEach(item => {
+        const btn = document.createElement('div');
+        btn.className = 'match-btn';
+        btn.innerText = item.def;
+        btn.onclick = () => selectDef(btn, item.term);
+        defsDiv.appendChild(btn);
+      });
+    }
+
+    function selectTerm(btn, term) {
+      if (btn.classList.contains('matched')) return;
+      document.querySelectorAll('#match-terms .match-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedTerm = { btn, term };
+    }
+
+    function selectDef(btn, term) {
+      if (!selectedTerm || btn.classList.contains('matched')) return;
+      if (selectedTerm.term === term) {
+        selectedTerm.btn.classList.add('matched');
+        btn.classList.add('matched');
+        selectedTerm.btn.classList.remove('selected');
+        selectedTerm = null;
+        document.getElementById('match-feedback').innerText = "Correct match!";
+        document.getElementById('match-feedback').style.color = "var(--correct)";
+      } else {
+        document.getElementById('match-feedback').innerText = "Try again!";
+        document.getElementById('match-feedback').style.color = "var(--wrong)";
+      }
+    }
+
+    // --- ACTIVITY 2: MEMORY GAME ---
+    const memoryPairs = [
+      { text: "Daisy", matchId: 1 },
+      { text: "Producer", matchId: 1 },
+      { text: "Rabbit", matchId: 2 },
+      { text: "Primary Consumer", matchId: 2 },
+      { text: "Fox", matchId: 3 },
+      { text: "Secondary Consumer", matchId: 3 },
+      { text: "Fungi", matchId: 4 },
+      { text: "Decomposer", matchId: 4 }
+    ];
+
+    let flippedCards = [];
+
+    function initMemory() {
+      const board = document.getElementById('memory-board');
+      const shuffled = [...memoryPairs].sort(() => Math.random() - 0.5);
+
+      shuffled.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'memory-card';
+        card.dataset.text = item.text;
+        card.dataset.matchId = item.matchId;
+        card.innerText = "?";
+        card.onclick = () => flipCard(card);
+        board.appendChild(card);
+      });
+    }
+
+    function flipCard(card) {
+      if (flippedCards.length === 2 || card.classList.contains('flipped') || card.classList.contains('matched-mem')) return;
+
+      card.classList.add('flipped');
+      card.innerText = card.dataset.text;
+      flippedCards.push(card);
+
+      if (flippedCards.length === 2) {
+        if (flippedCards[0].dataset.matchId === flippedCards[1].dataset.matchId) {
+          flippedCards[0].classList.add('matched-mem');
+          flippedCards[1].classList.add('matched-mem');
+          flippedCards = [];
+        } else {
+          setTimeout(() => {
+            flippedCards.forEach(c => {
+              c.classList.remove('flipped');
+              c.innerText = "?";
+            });
+            flippedCards = [];
+          }, 1000);
+        }
+      }
+    }
+
+    // --- ACTIVITY 3: ARROW RACE ---
+    let userChain = [];
+    const correctChain = ['Grass', 'Grasshopper', 'Snake', 'Hawk'];
+
+    function addToChain(organism) {
+      if (userChain.length < 4 && !userChain.includes(organism)) {
+        userChain.push(organism);
+        document.getElementById(`slot-${userChain.length - 1}`).innerText = organism;
+      }
+    }
+
+    function resetChain() {
+      userChain = [];
+      for (let i = 0; i < 4; i++) {
+        document.getElementById(`slot-${i}`).innerText = '?';
+      }
+      document.getElementById('chain-feedback').innerText = '';
+    }
+
+    function checkChain() {
+      if (userChain.length < 4) {
+        document.getElementById('chain-feedback').innerText = "Please fill all slots first!";
+        document.getElementById('chain-feedback').style.color = "var(--wrong)";
+        return;
+      }
+
+      const isCorrect = userChain.every((val, index) => val === correctChain[index]);
+      const feedback = document.getElementById('chain-feedback');
+
+      if (isCorrect) {
+        feedback.innerText = "Correct! Energy flows from Grass ➔ Grasshopper ➔ Snake ➔ Hawk.";
+        feedback.style.color = "var(--correct)";
+      } else {
+        feedback.innerText = "Incorrect order! Remember: Energy flows from Producer to Apex Predator.";
+        feedback.style.color = "var(--wrong)";
+      }
+    }
+
+    // Initialize games on load
+    window.onload = () => {
+      initMatching();
+      initMemory();
+    };
+  </script>
+</body>
+</html>
